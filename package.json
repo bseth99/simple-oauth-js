@@ -1,0 +1,29 @@
+{
+   "name": "SimpleOAuth",
+   "title": "Simply builds OAuth 1.0 headers",
+   "description": "Helper library for constructing the required authorization header for OAuth protected services",
+   "version": "0.1",
+   "author": {
+      "name": "Ben Olson",
+      "url": "http://bseth99.github.com/"
+   },
+   "homepage": "https://github.com/bseth99/simple-oauth",
+   "repository": {
+      "type": "git",
+      "url": "git://github.com/bseth99/simple-oauth.git"
+   },
+   "bugs": {
+      "url" : "http://github.com/bseth99/simple-oauth/issues"
+   },
+   "licenses": [
+      {
+         "type": "MIT",
+         "url": "https://github.com/bseth99/simple-oauth/blob/master/MIT-LICENSE"
+      }
+   ],
+   "dependencies": {
+      "underscore": "1.4.3"
+   },
+   "devDependencies": {},
+   "keywords": []
+}

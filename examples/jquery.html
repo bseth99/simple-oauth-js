@@ -1,0 +1,49 @@
+<html>
+    <head>
+        <title>SimpleOAuth jQuery AJAX Hook</title>
+    </head>
+    <body>
+
+        <div>
+            Edit the code to put real keys in to the options hash
+            and point to an actual end-point.  Open you're console
+            to inspect the request and response.
+        </div>
+
+        <script src="http://code.jquery.com/jquery.js"></script>
+        <script src="../external/underscore.js" ></script>
+        <script src="../src/simple-oauth.js" ></script>
+        <!-- <script src="jquery-oauth.js" ></script> -->
+        <script>
+
+           var keys = {
+                  consumer_key: 'R1Y3QW1L15uw8X0t5ddJbQ',
+                  consumer_secret: '7xKJvmTCKm97WBQQllji9Oz8DRQHJoN1svhiY8vo'
+             },
+
+             base = location.protocol + '//' + location.host + (location.port ? ':' + location.port : ''),
+             url = '/oauth/request_token',
+
+             oauth = new SimpleOAuth.Header('get', base+url, null, keys);
+
+           /**
+           *  Map requests to /api path for reverse proxy
+           *  They must be signed using the path the server will
+           *  see when checking the signature.
+           */
+           $.ajax({
+                   url: '/api' + url,
+                   type: "GET",
+                   processData: false,
+                   headers: { 'Authorization' : oauth.build() }
+                 })
+                .done( function (data, textStatus, jqXHR) {
+                        console.log('Success: ' + data);
+                   })
+                .fail( function (jqXHR, textStatus, errorThrown) {
+                        console.log('Fail: ' + jqXHR.status);
+                   });
+
+        </script>
+    </body>
+</html>
