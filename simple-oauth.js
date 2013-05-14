@@ -95,7 +95,7 @@
    function getTimestamp() {
       var d = new Date();
 
-      return ''+Math.floor((d.getTime() - (d.getTimezoneOffset() * 60000)) / 1000);
+      return ''+Math.floor(d.getTime() / 1000);
    }
 
    // Global scope

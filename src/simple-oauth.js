@@ -95,7 +95,7 @@
    function getTimestamp() {
       var d = new Date();
 
-      return ''+Math.floor((d.getTime() - (d.getTimezoneOffset() * 60000)) / 1000);
+      return ''+Math.floor(d.getTime() / 1000);
    }
 
    // Global scope
@@ -220,9 +220,9 @@
              s;
 
          if ( output == 'header' )
-            s = 'OAuth ' + this.normalized_attributes(', ');
+            s = 'OAuth ' + this.normalized_header_attributes(', ');
          else if ( output == 'query' )
-            s = this.normalized_attributes('&');
+            s = this.normalized_query_attributes('&');
 
          return s;
       },
@@ -235,15 +235,25 @@
 
      // private
 
-      normalized_attributes: function ( cc ) {
-         var cc = cc || ', ';
+      normalized_header_attributes: function ( ) {
 
          return (
                _.map(
                   _.sortBy( _.pairs(this.signed_attributes()), function (v) { return v[0]; } ),
                      function (v) {
                            return v[0]+'="'+Header.escape(v[1])+'"';
-                        }).join(cc)
+                        }).join(', ')
+            );
+      },
+
+      normalized_query_attributes: function ( ) {
+
+         return (
+               _.map(
+                  _.sortBy( _.pairs(this.signed_attributes()), function (v) { return v[0]; } ),
+                     function (v) {
+                           return v[0]+'='+Header.escape(v[1]);
+                        }).join('&')
             );
       },
 
