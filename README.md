@@ -1,4 +1,4 @@
-SimpleOAuthJS
+Simple OAuth
 =========
 
 #### Helper Library for Signing OAuth Requests ####
@@ -97,5 +97,5 @@ has to match what the server will see or it will fail.
 License
 ---------------
 
-Copyright (c) 2013, Ben Olson
-Licensed under the MIT license.  
+Copyright (c) 2013, Ben Olson  
+Licensed under the MIT license  
