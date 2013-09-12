@@ -63,7 +63,7 @@
         define(['underscore'], factory);
     } else {
         // Browser globals
-        root.Backbone.Fiber = factory( root._ );
+        root.SimpleOAuth = factory( root._ );
     }
 }(this, function ( _ ) {
 
