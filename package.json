@@ -2,7 +2,7 @@
    "name": "SimpleOAuth",
    "title": "Simply builds OAuth 1.0 headers",
    "description": "Helper library for constructing the required authorization header for OAuth protected services",
-   "version": "0.1",
+   "version": "0.0.3",
    "author": {
       "name": "Ben Olson",
       "url": "http://bseth99.github.com/"
@@ -24,6 +24,11 @@
    "dependencies": {
       "underscore": "1.4.3"
    },
-   "devDependencies": {},
+   "devDependencies": {
+      "grunt": "0.4.x",
+      "grunt-contrib-jshint": "0.6.x",
+      "grunt-contrib-uglify": "0.1.x",
+      "grunt-contrib-concat": "0.1.x"
+   },
    "keywords": []
 }

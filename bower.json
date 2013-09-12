@@ -1,0 +1,16 @@
+{
+  "name": "simple-oauth-js",
+  "version": "0.0.3",
+  "ignore": [
+    "src",
+    "tests",
+    "external",
+    "examples",
+    ".jshintrc",
+    ".gitignore",
+    "build.sh"
+  ],
+  "dependencies": {
+    "lodash": "latest"
+  }
+}
