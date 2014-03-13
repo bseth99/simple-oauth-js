@@ -506,7 +506,7 @@
                 value='';
 
             if (keyToken[1]) {
-               value=decodeURIComponent(keyToken[1]);
+               value=decodeURIComponent(keyToken[1].replace('+', ' '));
             }
 
             if(result[keyToken[0]]) {
