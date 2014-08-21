@@ -115,6 +115,13 @@ test( "GET, no parameters or query string", function() {
 
 });
 
+test( "GET, with reserved query values", function() {
+
+   compare = "OAuth oauth_consumer_key=\"R1Y3QW1L15uw8X0t5ddJbQ\", oauth_nonce=\"qb1vwdqJYB4LBlw6\", oauth_signature=\"tN7q%2B56lhAUJ%2FZ6D1djtuCRePDE%3D\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"1367513425\", oauth_version=\"1.0\"";
+   header = new SimpleOAuth.Header('get', 'http://example.org/oauth/request_token?q=w@&z=w?', null, globalOptions);
+   equal( header.build(), compare, '' );
+
+});
 
 test( "POST, no parameters or query string", function() {
 

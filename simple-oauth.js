@@ -481,7 +481,8 @@
 
    URI = {
 
-      /* Adapted from OAuthSimple
+       /*!
+        * Adapted from OAuthSimple
         * A simpler version of OAuth
         *
         * author:     jr conlin
@@ -533,40 +534,175 @@
          return _.map(params, function (v,k) { return k+'='+encodeURIComponent(v); }).join('&');
       },
 
-      // parseUri 1.2.2
-      // (c) Steven Levithan <stevenlevithan.com>
-      // MIT License
+      /*!
+      * parseUri 1.2.2
+      * (c) Steven Levithan <stevenlevithan.com>
+      * MIT License
+      */
 
       parseUri: function (str) {
-         var   o   = URI.options,
-            m   = o.parser[o.strictMode ? "strict" : "loose"].exec(str),
-            uri = {},
-            i   = 14;
+         var uri = Parser.parse(str);
 
-         while (i--) uri[o.key[i]] = m[i] || "";
-
-         uri[o.q.name] = {};
-         uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
-            if ($1) uri[o.q.name][$1] = $2;
+         uri['queryKey'] = {};
+         uri['query'].replace(/(?:^|&)([^&=]*)=?([^&]*)/g, function ($0, $1, $2) {
+            if ($1) uri['queryKey'][$1] = $2;
          });
 
          return new _uri(uri);
       },
 
-      options: {
-         strictMode: true,
-         key: ["source","scheme","authority","userinfo","user","password","host","port","relative","path","directory","file","query","fragment"],
-         q:   {
-            name:   "queryKey",
-            parser: /(?:^|&)([^&=]*)=?([^&]*)/g
-         },
-         parser: {
-            strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
-            loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+   }
+
+   /*!
+   * https://github.com/medialize/URI.js
+   * MIT License
+   */
+
+   var Parser = {};
+
+   Parser.protocol_expression = /^[a-z][a-z0-9.+-]*$/i;
+
+   Parser.parse = function( string ) {
+      var pos, parts = {};
+      // [protocol"://"[username[":"password]"@"]hostname[":"port]"/"?][path]["?"querystring]["#"fragment]
+
+      // extract fragment
+      parts.source = string;
+      parts.fragment = '';
+
+      pos = string.indexOf('#');
+      if (pos > -1) {
+         // escaping?
+         parts.fragment = string.substring(pos + 1) || '';
+         string = string.substring(0, pos);
+      }
+
+      // extract query
+      pos = string.indexOf('?');
+      parts.query = '';
+      if (pos > -1) {
+         // escaping?
+         parts.query = string.substring(pos + 1) || '';
+         string = string.substring(0, pos);
+      }
+
+      // extract protocol
+      if (string.substring(0, 2) === '//') {
+         // relative-scheme
+         parts.scheme = null;
+         string = string.substring(2);
+         // extract "user:pass@host:port"
+         string = Parser.parseAuthority(string, parts);
+      } else {
+         pos = string.indexOf(':');
+         if (pos > -1) {
+            parts.scheme = string.substring(0, pos) || '';
+            if (parts.scheme && !parts.scheme.match(Parser.protocol_expression)) {
+               // : may be within the path
+               parts.scheme = undefined;
+            } else if (parts.scheme === 'file') {
+               // the file scheme: does not contain an authority
+               string = string.substring(pos + 3);
+            } else if (string.substring(pos + 1, pos + 3) === '//') {
+               string = string.substring(pos + 3);
+
+               // extract "user:pass@host:port"
+               string = Parser.parseAuthority(string, parts);
+            } else {
+               string = string.substring(pos + 1);
+               parts.urn = true;
+            }
          }
       }
 
-   }
+      // what's left must be the path
+      parts.path = string;
+      if ( parts.path.length > 0 ) {
+
+         parts.directory = '';
+         parts.file = '';
+      }
+
+      parts.relative = parts.path + ( parts.query.length > 0 ? '?' + parts.query : '' );
+
+      // and we're done
+      return parts;
+   };
+
+   Parser.parseHost = function(string, parts) {
+      // extract host:port
+      var pos = string.indexOf('/');
+      var bracketPos;
+      var t;
+
+      if (pos === -1) {
+         pos = string.length;
+      }
+
+      if (string.charAt(0) === '[') {
+         // IPv6 host - http://tools.ietf.org/html/draft-ietf-6man-text-addr-representation-04#section-6
+         // I claim most client software breaks on IPv6 anyways. To simplify things, URI only accepts
+         // IPv6+port in the format [2001:db8::1]:80 (for the time being)
+         bracketPos = string.indexOf(']');
+         parts.host = string.substring(1, bracketPos) || '';
+         parts.port = string.substring(bracketPos + 2, pos) || '';
+         if (parts.port === '/') {
+            parts.port = '';
+         }
+      } else if (string.indexOf(':') !== string.lastIndexOf(':')) {
+         // IPv6 host contains multiple colons - but no port
+         // this notation is actually not allowed by RFC 3986, but we're a liberal parser
+         parts.host = string.substring(0, pos) || '';
+         parts.port = '';
+      } else {
+         t = string.substring(0, pos).split(':');
+         parts.host = t[0] || '';
+         parts.port = t[1] || '';
+      }
+
+      if (parts.host && string.substring(pos).charAt(0) !== '/') {
+         pos++;
+         string = '/' + string;
+      }
+
+      parts.authority = ( parts.host || '' ) + ( parts.port ? ':' + parts.port : '' )
+
+      return string.substring(pos) || '/';
+   };
+
+   Parser.parseAuthority = function(string, parts) {
+      string = Parser.parseUserinfo(string, parts);
+      return Parser.parseHost(string, parts);
+   };
+
+   Parser.parseUserinfo = function(string, parts) {
+      // extract username:password
+      var firstSlash = string.indexOf('/');
+      /*jshint laxbreak: true */
+      var pos = firstSlash > -1
+         ? string.lastIndexOf('@', firstSlash)
+         : string.indexOf('@');
+      /*jshint laxbreak: false */
+      var t;
+
+      // authority@ must come before /path
+      if (pos > -1 && (firstSlash === -1 || pos < firstSlash)) {
+         t = string.substring(0, pos).split(':');
+         parts.user = t[0] ? decodeURIComponent(t[0]) : '';
+         t.shift();
+         parts.password = t[0] ? decodeURIComponent(t.join(':')) : '';
+         parts.userinfo = parts.user + '@' + parts.password;
+
+         string = string.substring(pos + 1);
+      } else {
+         parts.userinfo = '';
+         parts.user = '';
+         parts.password = '';
+      }
+
+      return string;
+   };
+
 
    function b64_hmac_sha1(k,d,_p,_z){
    // heavily optimized and compressed version of http://pajhome.org.uk/crypt/md5/sha1.js

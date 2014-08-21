@@ -2,7 +2,7 @@
    "name": "SimpleOAuth",
    "title": "Simply builds OAuth 1.0 headers",
    "description": "Helper library for constructing the required authorization header for OAuth protected services",
-   "version": "0.0.4",
+   "version": "0.0.5",
    "author": {
       "name": "Ben Olson",
       "url": "http://bseth99.github.com/"
