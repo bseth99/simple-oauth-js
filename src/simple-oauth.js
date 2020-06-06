@@ -390,7 +390,7 @@
                params.push( _(_.flatten([vs]).sort()).chain().map(function (v) { return [k, v]; }).value() );
             });
 
-         return params.flatten(true);
+         return ( params.flatten ? params.flatten(true) : _.flatten(params, true) );
       }
 
    });
