@@ -189,7 +189,7 @@
 
       url: function () {
 
-         var uri = _.clone(this.uri);
+         var uri = new _uri(_.clone(this.uri));
          uri.query = null;
          return uri.build();
 
